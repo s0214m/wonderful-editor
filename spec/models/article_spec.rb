@@ -20,29 +20,6 @@
 require "rails_helper"
 
 RSpec.describe Article, type: :model do
-  context "title, body, user_idがある時" do
-    it "投稿できる" do
-
-    end
+  it  do
   end
-
-  context "titleがない時" do
-    it "投稿できない" do
-
-    end
-  end
-
-  context "bodyがない時" do
-    it "投稿できない" do
-
-    end
-  end
-
-  context "user_idがない時" do
-    it "投稿できない" do
-
-    end
-  end
-
-
 end
