@@ -53,5 +53,7 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "active_model_serializers", "~> 0.10.13"
+gem "devise"
 gem "devise_token_auth"
+gem "rack-cors"
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
