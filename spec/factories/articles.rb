@@ -21,6 +21,18 @@ FactoryBot.define do
   factory :article do
     title { Faker::Movie.title }
     body { Faker::Lorem.paragraph }
-    user { build(:user) }
+    user
+
+    trait :with_comment do
+      after(:create) do |article|
+        create_list(:comment, 3, article: article)
+      end
+    end
+
+    trait :with_article_like do
+      after(:create) do |article|
+        create_list(:article_like, 3, article: article)
+      end
+    end
   end
 end
