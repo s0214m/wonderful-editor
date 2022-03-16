@@ -22,7 +22,7 @@
 FactoryBot.define do
   factory :comment do
     body { Faker::Lorem.sentence }
-    user { build(:user) }
-    article { build(:article) }
+    user
+    article
   end
 end
