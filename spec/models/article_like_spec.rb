@@ -15,15 +15,15 @@ require "rails_helper"
 
 RSpec.describe ArticleLike, type: :model do
   context "userとarticleが存在する場合" do
+    let(:article_like) { build(:article_like) }
     it "いいねが付く" do
-      article_like = build(:article_like)
       expect(article_like).to be_valid
     end
   end
 
   context "userが存在しない場合" do
+    let(:article_like) { build(:article_like, user: nil) }
     it "いいねがつかない" do
-      article_like = build(:article_like, user: nil)
       expect(article_like).to be_invalid
       res = article_like.errors.details[:user][0][:error]
       expect(res).to eq :blank
@@ -31,8 +31,8 @@ RSpec.describe ArticleLike, type: :model do
   end
 
   context "articleが存在しない場合" do
+    let(:article_like) { build(:article_like, article: nil) }
     it "いいねが付かない" do
-      article_like = build(:article_like, article: nil)
       expect(article_like).to be_invalid
       res = article_like.errors.details[:article][0][:error]
       expect(res).to eq :blank
