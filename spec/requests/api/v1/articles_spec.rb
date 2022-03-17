@@ -25,7 +25,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
     let(:article_id) { article.id }
     let(:article) { create(:article) }
     context "適切なidを指定した時" do
-      fit "その記事を取得できる" do
+      it "その記事を取得できる" do
         subject
         res = JSON.parse(response.body)
         expect(res["id"]).to eq article.id
