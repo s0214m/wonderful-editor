@@ -55,8 +55,8 @@ RSpec.describe "Api::V1::Articles", type: :request do
     context "適切なparamsが送信した場合" do
       let(:current_user) { create(:user) }
       it "articleが作成される" do
-        # allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
-        expect { subject }.to change { Article.count }.by(1)
+        allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
+        expect { subject }.to change { current_user.articles.count }.by(1)
         res = JSON.parse(response.body)
         expect(res["title"]).to eq params[:article][:title]
         expect(res["body"]).to eq params[:article][:body]
@@ -72,20 +72,19 @@ RSpec.describe "Api::V1::Articles", type: :request do
       let(:params) { attributes_for(:article) }
       let(:current_user) { create(:user) }
       it "エラーが出る" do
-        # allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
+        allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
         expect { subject }.to raise_error(ActionController::ParameterMissing)
       end
     end
   end
 
   # update
-  describe "PATCH /api/v1/articles" do
+  describe "PATCH /api/v1/articles/:id" do
     subject { patch(api_v1_article_path(article_id), params: params) }
 
-    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
-
-    let(:current_user) { create(:user) }
     let(:article_id) { article.id }
+    let(:current_user) { create(:user) }
+    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
 
     context "自身の記事を更新しようとした時" do
       let!(:article) { create(:article, user: current_user) }
@@ -102,6 +101,32 @@ RSpec.describe "Api::V1::Articles", type: :request do
       let(:params) { { article: { title: Faker::Movie.title } } }
       it "更新できない" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
+
+  # destroy
+  describe "DELETE /api/v1/articles/:id" do
+    subject { delete(api_v1_article_path(article_id)) }
+
+    let(:article_id) { article.id }
+    let(:current_user) { create(:user) }
+    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
+
+    context "自身の記事を削除しようとした時" do
+      let!(:article) { create(:article, user: current_user) }
+      it "削除できる" do
+        expect { subject }.to change { current_user.articles.count }.by(-1)
+      end
+    end
+
+    context "他人の投稿を削除しようとした時" do
+      let!(:article) { create(:article, user: other_user) }
+      let(:other_user) { create(:user) }
+
+      it "削除できない" do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound) &
+                              change { Article.count }.by(0)
       end
     end
   end
