@@ -77,4 +77,32 @@ RSpec.describe "Api::V1::Articles", type: :request do
       end
     end
   end
+
+  # update
+  describe "PATCH /api/v1/articles" do
+    subject { patch(api_v1_article_path(article_id), params: params) }
+
+    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
+
+    let(:current_user) { create(:user) }
+    let(:article_id) { article.id }
+
+    context "自身の記事を更新しようとした時" do
+      let!(:article) { create(:article, user: current_user) }
+      let(:params) { { article: { title: Faker::Movie.title, user: create(:user) } } }
+      it "更新できる" do
+        expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title])
+        not_change { article.reload.user }
+      end
+    end
+
+    context "他人の投稿を更新しようとした時" do
+      let!(:article) { create(:article, user: other_user) }
+      let(:other_user) { create(:user) }
+      let(:params) { { article: { title: Faker::Movie.title } } }
+      it "更新できない" do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
 end
