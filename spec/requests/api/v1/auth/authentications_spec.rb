@@ -157,12 +157,17 @@ RSpec.describe "Api::V1::Auth::Authentications", type: :request do
   # sign_out
 
   describe " DELETE /api/v1/auth/sign_out" do
-    subject { destroy(api_v1_user_session, user_id) }
+    subject { delete(destroy_api_v1_user_session_path, headers: headers) }
 
-    let(:user_id) { user.id }
-    let(:user) { create(:user) }
-    context "destroy" do
-      it "destroy" do
+    context "userがログインしている時" do
+      let(:sign_in_user) { create(:user) }
+      let!(:headers) { sign_in_user.create_new_auth_token }
+      it "ログアウト" do
+        subject
+        expect(res["success"]).to eq true
+        expect(response.headers["uid"]).to eq nil
+        expect(response.headers["access-token"]).to eq nil
+        expect(response.headers["client"]).to eq nil
       end
     end
   end
