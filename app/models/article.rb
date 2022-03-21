@@ -1,9 +1,11 @@
 class Article < ApplicationRecord
+  enum status: { unpublished: 0, published: 1 }, _prefix: :status
   belongs_to :user
 
   has_many :article_likes, dependent: :destroy
   has_many :comments, dependent: :destroy
 
+  validates :status, presence: true
   validates :title, presence: true
   validates :body, presence: true
 end
@@ -14,6 +16,7 @@ end
 #
 #  id         :bigint           not null, primary key
 #  body       :text
+#  status     :integer
 #  title      :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -21,6 +24,7 @@ end
 #
 # Indexes
 #
+#  index_articles_on_status   (status)
 #  index_articles_on_user_id  (user_id)
 #
 # Foreign Keys
