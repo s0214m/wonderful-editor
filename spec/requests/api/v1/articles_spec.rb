@@ -51,20 +51,40 @@ RSpec.describe "Api::V1::Articles", type: :request do
   describe "POST /api/v1/articles" do
     subject { post(api_v1_articles_path, params: params, headers: headers) }
 
-    let(:params) { { article: attributes_for(:article) } }
     let!(:headers) { current_user.create_new_auth_token }
     context "適切なparamsを送信した場合" do
-      let(:current_user) { create(:user) }
-      it "articleが作成される" do
-        expect { subject }.to change { current_user.articles.count }.by(1)
-        res = JSON.parse(response.body)
-        expect(res["title"]).to eq params[:article][:title]
-        expect(res["body"]).to eq params[:article][:body]
-        expect(res["updated_at"]).to be_present
-        expect(res["user"]["id"]).to eq current_user.id
-        expect(res["user"]["name"]).to eq current_user.name
-        expect(res["user"]["email"]).to eq current_user.email
-        expect(response).to have_http_status(:ok)
+      context "公開用として" do
+        let(:params) { { article: attributes_for(:article).merge(status: "published") } }
+        let(:current_user) { create(:user) }
+        it "articleが作成される" do
+          expect { subject }.to change { current_user.articles.count }.by(1)
+          res = JSON.parse(response.body)
+          expect(res["status"]).to eq params[:article][:status]
+          expect(res["title"]).to eq params[:article][:title]
+          expect(res["body"]).to eq params[:article][:body]
+          expect(res["updated_at"]).to be_present
+          expect(res["user"]["id"]).to eq current_user.id
+          expect(res["user"]["name"]).to eq current_user.name
+          expect(res["user"]["email"]).to eq current_user.email
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context "下書き用として" do
+        let(:params) { { article: attributes_for(:article).merge(status: "unpublished") } }
+        let(:current_user) { create(:user) }
+        it "articleが作成される" do
+          expect { subject }.to change { current_user.articles.count }.by(1)
+          res = JSON.parse(response.body)
+          expect(res["status"]).to eq params[:article][:status]
+          expect(res["title"]).to eq params[:article][:title]
+          expect(res["body"]).to eq params[:article][:body]
+          expect(res["updated_at"]).to be_present
+          expect(res["user"]["id"]).to eq current_user.id
+          expect(res["user"]["name"]).to eq current_user.name
+          expect(res["user"]["email"]).to eq current_user.email
+          expect(response).to have_http_status(:ok)
+        end
       end
     end
 
