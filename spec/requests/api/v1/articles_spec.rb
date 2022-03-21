@@ -49,30 +49,29 @@ RSpec.describe "Api::V1::Articles", type: :request do
 
   # create
   describe "POST /api/v1/articles" do
-    subject { post(api_v1_articles_path, params: params) }
+    subject { post(api_v1_articles_path, params: params, headers: headers) }
 
     let(:params) { { article: attributes_for(:article) } }
-    context "適切なparamsが送信した場合" do
-      let(:current_user) { create(:user) }
+    let!(:headers) { current_api_v1_user.create_new_auth_token }
+    context "適切なparamsを送信した場合" do
+      let(:current_api_v1_user) { create(:user) }
       it "articleが作成される" do
-        allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
-        expect { subject }.to change { current_user.articles.count }.by(1)
+        expect { subject }.to change { current_api_v1_user.articles.count }.by(1)
         res = JSON.parse(response.body)
         expect(res["title"]).to eq params[:article][:title]
         expect(res["body"]).to eq params[:article][:body]
         expect(res["updated_at"]).to be_present
-        expect(res["user"]["id"]).to eq current_user.id
-        expect(res["user"]["name"]).to eq current_user.name
-        expect(res["user"]["email"]).to eq current_user.email
+        expect(res["user"]["id"]).to eq current_api_v1_user.id
+        expect(res["user"]["name"]).to eq current_api_v1_user.name
+        expect(res["user"]["email"]).to eq current_api_v1_user.email
         expect(response).to have_http_status(:ok)
       end
     end
 
     context "不適切なparamsを送信した場合" do
       let(:params) { attributes_for(:article) }
-      let(:current_user) { create(:user) }
+      let(:current_api_v1_user) { create(:user) }
       it "エラーが出る" do
-        allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user)
         expect { subject }.to raise_error(ActionController::ParameterMissing)
       end
     end
@@ -80,14 +79,13 @@ RSpec.describe "Api::V1::Articles", type: :request do
 
   # update
   describe "PATCH /api/v1/articles/:id" do
-    subject { patch(api_v1_article_path(article_id), params: params) }
+    subject { patch(api_v1_article_path(article_id), params: params, headers: headers) }
 
     let(:article_id) { article.id }
-    let(:current_user) { create(:user) }
-    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
-
+    let(:current_api_v1_user) { create(:user) }
+    let!(:headers) { current_api_v1_user.create_new_auth_token }
     context "自身の記事を更新しようとした時" do
-      let!(:article) { create(:article, user: current_user) }
+      let!(:article) { create(:article, user: current_api_v1_user) }
       let(:params) { { article: { title: Faker::Movie.title, user: create(:user) } } }
       it "更新できる" do
         expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title])
@@ -107,16 +105,16 @@ RSpec.describe "Api::V1::Articles", type: :request do
 
   # destroy
   describe "DELETE /api/v1/articles/:id" do
-    subject { delete(api_v1_article_path(article_id)) }
+    subject { delete(api_v1_article_path(article_id), headers: headers) }
 
     let(:article_id) { article.id }
-    let(:current_user) { create(:user) }
-    before { allow_any_instance_of(Api::V1::ArticlesController).to receive(:current_user).and_return(current_user) }
+    let(:current_api_v1_user) { create(:user) }
+    let(:headers) { current_api_v1_user.create_new_auth_token }
 
     context "自身の記事を削除しようとした時" do
-      let!(:article) { create(:article, user: current_user) }
+      let!(:article) { create(:article, user: current_api_v1_user) }
       it "削除できる" do
-        expect { subject }.to change { current_user.articles.count }.by(-1)
+        expect { subject }.to change { current_api_v1_user.articles.count }.by(-1)
       end
     end
 

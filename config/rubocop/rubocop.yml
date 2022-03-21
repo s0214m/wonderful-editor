@@ -409,3 +409,5 @@ Style/WordArray:
 # 中身を入れ替えて否定外しても良いんだけど、どちらが例外的な処理なのかが分かりづらくなる。
 Style/ZeroLengthPredicate:
   Enabled: false
+
+
