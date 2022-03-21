@@ -1,5 +1,5 @@
 class Api::V1::ArticlesController < Api::V1::BaseApiController
-  before_action :authenticate_api_v1_user!, only: [:destroy, :create, :update]
+  before_action :authenticate_user!, only: [:destroy, :create, :update]
   before_action :set_article, only: [:update, :destroy]
 
   def index
@@ -13,7 +13,7 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   end
 
   def create
-    article = current_api_v1_user.articles.create!(article_params)
+    article = current_user.articles.create!(article_params)
     render json: article, serializer: Api::V1::ArticleSerializer
   end
 
@@ -30,7 +30,7 @@ class Api::V1::ArticlesController < Api::V1::BaseApiController
   private
 
     def set_article
-      @article = current_api_v1_user.articles.find(params[:id])
+      @article = current_user.articles.find(params[:id])
     end
 
     def article_params
