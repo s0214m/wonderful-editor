@@ -4,6 +4,7 @@
 #
 #  id         :bigint           not null, primary key
 #  body       :text
+#  status     :integer
 #  title      :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -11,6 +12,7 @@
 #
 # Indexes
 #
+#  index_articles_on_status   (status)
 #  index_articles_on_user_id  (user_id)
 #
 # Foreign Keys
@@ -21,7 +23,7 @@
 require "rails_helper"
 
 RSpec.describe Article, type: :model do
-  context "title,body,を指定している時" do
+  context "title,body,statusを指定している時" do
     let(:article) { build(:article) }
     it "articleが作成される" do
       expect(article).to be_valid
@@ -42,6 +44,15 @@ RSpec.describe Article, type: :model do
     it "articleが作られない" do
       expect(article).to be_invalid
       res = article.errors.details[:body][0][:error]
+      expect(res).to eq :blank
+    end
+  end
+
+  context "statusを指定していない場合" do
+    let(:article) { build(:article, status: nil) }
+    it "articleが作られない" do
+      expect(article).to be_invalid
+      res = article.errors.details[:status][0][:error]
       expect(res).to eq :blank
     end
   end
