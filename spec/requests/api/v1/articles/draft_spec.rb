@@ -8,7 +8,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     let!(:headers) { current_user.create_new_auth_token }
     let(:current_user) { create(:user) }
     context "articleが下書きで自分のarticleの場合" do
-      before { create_list(:article, article_count, status: "unpublished", user_id: current_user.id) }
+      before { create_list(:article, article_count, status: "draft", user_id: current_user.id) }
 
       let(:article_count) { 3 }
       it "下書きのarticleが全て取得できる" do
@@ -16,7 +16,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
         res = JSON.parse(response.body)
         expect(res.count).to eq article_count
         expect(res[0].keys).to eq ["id", "title", "status", "updated_at", "user", "article_likes", "comments"]
-        expect(res[0]["status"]).to eq "unpublished"
+        expect(res[0]["status"]).to eq "draft"
         expect(res[0]["user"].keys).to eq ["id", "name", "email"]
         expect(res[0]["user"]["id"]).to eq current_user.id
         expect(res[0]["user"]["name"]).to eq current_user.name
@@ -26,7 +26,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     end
 
     context "articleが下書きで他人のarticleの場合" do
-      before { create_list(:article, article_count, status: "unpublished", user_id: other_user.id) }
+      before { create_list(:article, article_count, status: "draft", user_id: other_user.id) }
 
       let(:article_count) { 3 }
       let(:other_user) { create(:user) }
@@ -58,7 +58,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     let!(:headers) { current_user.create_new_auth_token }
     let(:current_user) { create(:user) }
     context "適切なidを指定していて自身のarticleが下書き用の場合" do
-      let(:article) { create(:article, status: "unpublished", user_id: current_user.id) }
+      let(:article) { create(:article, status: "draft", user_id: current_user.id) }
       let(:article_id) { article.id }
       it "そのarticleを取得できる" do
         subject
@@ -67,7 +67,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
         expect(res["title"]).to eq article.title
         expect(res["body"]).to eq article.body
         expect(res["updated_at"]).to be_present
-        expect(res["status"]).to eq "unpublished"
+        expect(res["status"]).to eq "draft"
         expect(res["user"]["id"]).to eq current_user.id
         expect(res["user"]["name"]).to eq current_user.name
         expect(res["user"]["email"]).to eq current_user.email
@@ -84,7 +84,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     end
 
     context "適切なidを指定していて下書き用だが、他人のarticleの場合" do
-      let(:article) { create(:article, status: "unpublished", user_id: other_user.id) }
+      let(:article) { create(:article, status: "draft", user_id: other_user.id) }
       let(:other_user) { create(:user) }
       let(:article_id) { article.id }
       it "そのarticleを取得できない" do
@@ -93,7 +93,7 @@ RSpec.describe "Api::V1::Articles::Drafts", type: :request do
     end
 
     context "不適切なidを指定した時" do
-      let(:article) { create(:article, status: "unpublished") }
+      let(:article) { create(:article, status: "draft") }
       let(:article_id) { 10000 }
       it "エラーになる" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)

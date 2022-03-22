@@ -20,7 +20,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
     end
 
     context "記事が下書き用の場合" do
-      before { create_list(:article, article_count, status: "unpublished") }
+      before { create_list(:article, article_count, status: "draft") }
 
       let(:article_count) { 3 }
       it "articleが取得できない" do
@@ -56,7 +56,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
     end
 
     context "適切なidを指定していてその記事が下書きの場合" do
-      let(:article) { create(:article, status: "unpublished") }
+      let(:article) { create(:article, status: "draft") }
       let(:article_id) { article.id }
       it "その記事を取得できない" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
@@ -95,7 +95,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
       end
 
       context "下書き用として" do
-        let(:params) { { article: attributes_for(:article).merge(status: "unpublished") } }
+        let(:params) { { article: attributes_for(:article).merge(status: "draft") } }
         let(:current_user) { create(:user) }
         it "articleが作成される" do
           expect { subject }.to change { current_user.articles.count }.by(1)
@@ -141,7 +141,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
 
       context "下書き用として" do
         let!(:article) { create(:article, user: current_user, status: "published") }
-        let(:params) { { article: { title: Faker::Movie.title, user: create(:user), status: "unpublished" } } }
+        let(:params) { { article: { title: Faker::Movie.title, user: create(:user), status: "draft" } } }
         it "更新できる" do
           expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
                                 not_change { article.reload.user } &
@@ -152,7 +152,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
 
     context "下書きの自身の記事を更新しようとした時" do
       context "公開用として" do
-        let!(:article) { create(:article, user: current_user, status: "unpublished") }
+        let!(:article) { create(:article, user: current_user, status: "draft") }
         let(:params) { { article: { title: Faker::Movie.title, user: create(:user), status: "published" } } }
         it "更新できる" do
           expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
@@ -162,8 +162,8 @@ RSpec.describe "Api::V1::Articles", type: :request do
       end
 
       context "下書き用として" do
-        let!(:article) { create(:article, user: current_user, status: "unpublished") }
-        let(:params) { { article: { title: Faker::Movie.title, user: create(:user), status: "unpublished" } } }
+        let!(:article) { create(:article, user: current_user, status: "draft") }
+        let(:params) { { article: { title: Faker::Movie.title, user: create(:user), status: "draft" } } }
         it "更新できる" do
           expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
                                 not_change { article.reload.user } &

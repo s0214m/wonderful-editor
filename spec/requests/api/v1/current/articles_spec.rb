@@ -39,7 +39,7 @@ RSpec.describe "Api::V1::Current::Articles", type: :request do
     end
 
     context "articleが下書き用の場合" do
-      before { create_list(:article, article_count, status: "unpublished", user_id: current_user.id) }
+      before { create_list(:article, article_count, status: "draft", user_id: current_user.id) }
 
       let(:article_count) { 3 }
       it "articleが取得できない" do
