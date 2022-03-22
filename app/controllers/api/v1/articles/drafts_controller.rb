@@ -7,7 +7,7 @@ class Api::V1::Articles::DraftsController < Api::V1::BaseApiController
   end
 
   def show
-    article = current_user.articles.where(status: "dfart").find(params[:id])
+    article = current_user.articles.where(status: "draft").find(params[:id])
     render json: article, serializer: Api::V1::ArticleSerializer
   end
 end
